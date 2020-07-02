@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.li.dao.ItemCategoryTwoDao">
+    <!--实体类与数据库映射字段部分-->
+    <resultMap id="ResultMapItemCategoryTwo" type="com.li.entity.ItemCategoryTwo">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="oid" column="oid" jdbcType="INTEGER"/>
+        <association property="itemCategoryOne" javaType="com.li.entity.ItemCategoryOne">
+        	<id property="id" column="oneId"/>
+        	<result property="name" column="oneName"/>
+        </association>
+    </resultMap>
+
+    <!-- 声明数据库字段 -->
+    <sql id="ItemCategoryTwo_field">
+        id,name,oid
+    </sql>
+
+    <!-- 实体类属性-->
+    <sql id="ItemCategoryTwo_insert">
+        #{id},#{name},#{oid}
+    </sql>
+
+    <!-- 更新结果  -->
+    <sql id="ItemCategoryTwo_update">
+        <if test="name != null">
+            name = #{name},
+        </if>
+        <if test="oid != null">
+            oid = #{oid}
+        </if>
+    </sql>
+
+    <!-- 查询时条件   -->
+    <sql id="ItemCategoryTwo_where">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="name != null">
+            and name = #{name}
+        </if>
+        <if test="oid != null">
+            and oid = #{oid}
+        </if>
+    </sql>
+
+    <!--    新增        -->
+    <!--    参数：实体类-->
+    <!--    返回：主键 -->
+    <insert id="insert" parameterType="com.li.entity.ItemCategoryTwo" useGeneratedKeys="true" keyProperty="id">
+        insert into item_category_two(
+        <include refid="ItemCategoryTwo_field"/>
+        ) values(
+        <include refid="ItemCategoryTwo_insert"/>
+        )
+    </insert>
+
+    <!-- 根据实体主键删除一个实体-->
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        delete from item_category_two where id=#{id}
+    </delete>
+
+    <!-- 更新一个实体 -->
+    <update id="update" parameterType="com.li.entity.ItemCategoryTwo">
+        update item_category_two
+        <set>
+            <include refid="ItemCategoryTwo_update"/>
+        </set>
+		where id=#{id}
+    </update>
+
+    <!-- 根据参数查询-->
+    <select id="listByMap" resultMap="ResultMapItemCategoryTwo" parameterType="map">
+        select <include refid="ItemCategoryTwo_field"/>
+        from item_category_two  
+		<where>
+	        <include refid="ItemCategoryTwo_where"/>
+		</where>
+    </select>
+
+    <!-- 查询整个表 -->
+    <select id="listAll" resultMap="ResultMapItemCategoryTwo">
+        select <include refid="ItemCategoryTwo_field"/>
+        from item_category_two
+    </select>
+
+    <!-- 查询所有实体,根据实体属性值为判断条件查询所有实体-->
+    <select id="listAllByEntity" resultMap="ResultMapItemCategoryTwo" parameterType="com.li.entity.ItemCategoryTwo">
+        select <include refid="ItemCategoryTwo_field"/>
+        from item_category_two  
+		<where>
+	        <include refid="ItemCategoryTwo_where"/>
+		</where>
+    </select>
+
+    <!-- 根据主键获取一个实体-->
+    <select id="getById" resultMap="ResultMapItemCategoryTwo" parameterType="java.lang.Integer">
+        select <include refid="ItemCategoryTwo_field"/>
+        from item_category_two where id=#{id}
+    </select>
+
+    <!-- 通过map查询-->
+    <select id="getByMap" resultMap="ResultMapItemCategoryTwo" parameterType="map">
+        select <include refid="ItemCategoryTwo_field"/>
+        from item_category_two  
+		<where>
+	        <include refid="ItemCategoryTwo_where"/>
+		</where>
+    </select>
+    
+    <!--通过对象查询-不分页-->
+    <select id="getByEntity" resultMap="ResultMapItemCategoryTwo" parameterType="com.li.entity.ItemCategoryTwo">
+        select <include refid="ItemCategoryTwo_field"/>
+        from item_category_two  
+		<where>
+	        <include refid="ItemCategoryTwo_where"/>
+		</where>
+    </select>
+    
+    <!--通过对象查询分页-->
+    <select id="findByEntityPaging" resultMap="ResultMapItemCategoryTwo" parameterType="com.li.entity.ItemCategoryTwo">
+        select <include refid="ItemCategoryTwo_field"/>
+        from item_category_two  
+		<where>
+	        <include refid="ItemCategoryTwo_where"/>
+		</where>
+    </select>
+
+    <!-- 批量新增-->
+    <select id="insertBatch" parameterType="java.util.List">
+        insert into item_category_two(
+        <include refid="ItemCategoryTwo_field"/>
+        ) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.name},#{oidd})
+        </foreach>
+    </select>
+
+    <!-- 批量修改-->
+    <update id="updateBatch" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" separator=";">
+            update item_category_two
+            <set>
+                <if test="item.name != null">
+                    name = #{item.name}
+                </if>
+                <if test="item.name != null">
+                    oid = #{item.oid}
+                </if>
+            </set>
+			<where>
+	            <if test="item.id != null">
+	               and id = #{item.id}
+	            </if>
+			</where>
+        </foreach>
+    </update>
+    
+    <!-- 各个entity对应的个性化查询 -->
+    <!--查询一级类目下对应二级类目的数量-->
+    <select id="getItemCategoryTwoNum" resultType="Long">
+        SELECT
+			COUNT(*) 
+		FROM
+			item_category_two 
+		WHERE
+			oid = #{oid}
+    </select>
+</mapper>

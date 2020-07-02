@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.li.dao.UserRoleDao">
+    <!--实体类与数据库映射字段部分-->
+    <resultMap id="ResultMapUserRole" type="com.li.entity.shiro.UserRole">
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="roleId" column="role_id" jdbcType="INTEGER"/>
+    </resultMap>
+
+	<insert id="insert" parameterType="com.li.entity.shiro.UserRole">
+		 insert into t_user_role(user_id,role_id) values(#{userId},#{roleId})
+	</insert>
+
+	<delete id="delete" parameterType="com.li.entity.shiro.UserRole">
+		delete from t_user_role
+		<where>
+			<if test="userId!=null">
+				and user_id = #{userId}
+			</if>
+			<if test="roleId!=null">
+				and role_id = #{roleId}
+			</if>
+		</where>
+	</delete>
+	
+	
+	<update id="updateRoleByUserId" parameterType="com.li.entity.shiro.UserRole">
+		update t_user_role SET role_id = #{roleId} WHERE user_id = #{userId}
+	</update>
+	
+	
+	<select id="select" parameterType="com.li.entity.shiro.UserRole">
+		select * from t_user_role
+		<where>
+			<if test="userId!=null">
+				and user_id = #{userId}
+			</if>
+			<if test="roleId!=null">
+				and role_id = #{roleId}
+			</if>
+		</where>
+	</select>
+</mapper>

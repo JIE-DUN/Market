@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.li.dao.CarDao">
+    <!--实体类与数据库映射字段部分-->
+    <resultMap id="ResultMapCar" type="com.li.entity.Car">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="itemId" column="item_id" jdbcType="INTEGER"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="num" column="num" jdbcType="INTEGER"/>
+        <result property="price" column="price" jdbcType="DECIMAL"/>
+        <result property="total" column="total" jdbcType="VARCHAR"/>
+     	<association property="item" column="item_id" select="com.li.dao.ItemDao.getById"/>
+    </resultMap>
+
+    <!-- 声明数据库字段 -->
+    <sql id="Car_field">
+        id,item_id,user_id,num,price,total
+    </sql>
+
+    <!-- 实体类属性-->
+    <sql id="Car_insert">
+        #{id},#{itemId},#{userId},#{num},#{price},#{total}
+    </sql>
+
+    <!-- 更新结果  -->
+    <sql id="Car_update">
+        <if test="itemId != null">
+            item_id = #{itemId},
+        </if>
+        <if test="userId != null">
+            user_id = #{userId},
+        </if>
+        <if test="num != null">
+            num = #{num},
+        </if>
+        <if test="price != null">
+            price = #{price},
+        </if>
+        <if test="total != null">
+            total = #{total},
+        </if>
+
+    </sql>
+
+    <!-- 查询时条件   -->
+    <sql id="Car_where">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="itemId != null">
+            and item_id = #{itemId}
+        </if>
+        <if test="userId != null">
+            and user_id = #{userId}
+        </if>
+        <if test="num != null">
+            and num = #{num}
+        </if>
+        <if test="price != null">
+            and price = #{price}
+        </if>
+        <if test="total != null">
+            and total = #{total}
+        </if>
+    </sql>
+
+    <!--    新增        -->
+    <!--    参数：实体类-->
+    <!--    返回：主键 -->
+    <insert id="insert" parameterType="com.li.entity.Car" useGeneratedKeys="true" keyProperty="id">
+        insert into car(
+        <include refid="Car_field"/>
+        ) values(
+        <include refid="Car_insert"/>
+        )
+    </insert>
+
+    <!-- 根据实体主键删除一个实体-->
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        delete from car where id=#{id}
+    </delete>
+
+    <!-- 更新一个实体 -->
+    <update id="update" parameterType="com.li.entity.Car">
+        update car
+        <set>
+            <include refid="Car_update"/>
+        </set>
+        where id=#{id}
+    </update>
+
+    <!-- 根据参数查询-->
+    <select id="listByMap" resultMap="ResultMapCar" parameterType="map">
+        select <include refid="Car_field"/>
+        from car 
+		<where>
+	        <include refid="Car_where"/>
+		</where>
+    </select>
+
+    <!-- 查询整个表 -->
+    <select id="listAll" resultMap="ResultMapCar">
+        select <include refid="Car_field"/>
+        from car
+    </select>
+
+    <!-- 查询所有实体,根据实体属性值为判断条件查询所有实体-->
+    <select id="listAllByEntity" resultMap="ResultMapCar" parameterType="com.li.entity.Car">
+        select <include refid="Car_field"/>
+        from car 
+		<where>
+	        <include refid="Car_where"/>
+		</where>
+    </select>
+
+    <!-- 根据主键获取一个实体-->
+    <select id="getById" resultMap="ResultMapCar" parameterType="java.lang.Integer">
+        select <include refid="Car_field"/>
+        from car where id=#{id}
+    </select>
+
+    <!-- 通过map查询-->
+    <select id="getByMap" resultMap="ResultMapCar" parameterType="map">
+        select <include refid="Car_field"/>
+        from car 
+		<where>
+	        <include refid="Car_where"/>
+		</where>
+    </select>
+    
+    <!--通过对象查询-->
+    <select id="getByEntity" resultMap="ResultMapCar" parameterType="com.li.entity.Car">
+        select <include refid="Car_field"/>
+        from car 
+		<where>
+	        <include refid="Car_where"/>
+		</where>
+    </select>
+    
+    <!--通过对象查询分页-->
+    <select id="findByEntityPaging" resultMap="ResultMapCar" parameterType="com.li.entity.Car">
+        select <include refid="Car_field"/>
+        from car 
+		<where>
+	        <include refid="Car_where"/>
+		</where>
+		order by id desc
+    </select>
+
+    <!-- 批量新增-->
+    <select id="insertBatch" parameterType="java.util.List">
+        insert into car(
+        <include refid="Car_field"/>
+        ) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.item_id},#{item.user_id},#{item.num},#{item.price},#{item.total})
+        </foreach>
+    </select>
+
+    <!-- 批量修改-->
+    <update id="updateBatch" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" separator=";">
+            update car
+            <set>
+                <if test="item.itemId != null">
+                    item_id = #{item.itemId},
+                </if>
+                <if test="item.userId != null">
+                    user_id = #{item.userId},
+                </if>
+                <if test="item.num != null">
+                    num = #{item.num},
+                </if>
+                <if test="item.price != null">
+                    price = #{item.price},
+                </if>
+                <if test="item.total != null">
+                    total = #{item.total},
+                </if>
+            </set>
+            <where>
+	            <if test="item.id != null">
+	               and id = #{item.id}
+	            </if>
+			</where>
+        </foreach>
+    </update>
+    
+    <!-- 各个entity对应的个性化查询 -->
+    <!-- 根据useid查询对应user购物车，按照购物车的主键id排序(倒序) -->
+    <select id="listCarByUserId" resultMap="ResultMapCar" parameterType="com.li.entity.Car">
+        select <include refid="Car_field"/>
+        from car where user_id=#{userId}
+        order by id desc
+    </select>
+</mapper>

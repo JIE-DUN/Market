@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.li.dao.ItemOrderDao">
+    <!--实体类与数据库映射字段部分-->
+    <resultMap id="ResultMapItemOrder" type="com.li.entity.ItemOrder">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="itemId" column="item_id" jdbcType="INTEGER"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="code" column="code" jdbcType="VARCHAR"/>
+        <result property="addTime" column="addTime" jdbcType="TIMESTAMP"/>
+        <result property="total" column="total" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <association property="user" javaType="com.li.entity.User">
+        	<id property="id" column="uid" jdbcType="INTEGER"/>
+	        <result property="userName" column="uuserName" jdbcType="VARCHAR"/>
+	        <result property="passWord" column="upassWord" jdbcType="VARCHAR"/>
+	        <result property="phone" column="uphone" jdbcType="VARCHAR"/>
+	        <result property="realName" column="urealName" jdbcType="VARCHAR"/>
+	        <result property="sex" column="usex" jdbcType="VARCHAR"/>
+	        <result property="address" column="uaddress" jdbcType="VARCHAR"/>
+	        <result property="email" column="uemail" jdbcType="VARCHAR"/>
+        </association>
+        <collection property="orderDetails" ofType="com.li.entity.OrderDetail" >
+        	<id property="id" column="oid" jdbcType="INTEGER"/>
+	        <result property="itemId" column="oitem_id" jdbcType="INTEGER"/>
+	        <result property="orderId" column="oorder_id" jdbcType="INTEGER"/>
+	        <result property="status" column="ostatus" jdbcType="INTEGER"/>
+	        <result property="num" column="onum" jdbcType="INTEGER"/>
+	        <result property="total" column="ototal" jdbcType="VARCHAR"/>
+	        <association property="item" column="oitem_id" select="com.li.dao.ItemDao.getById"/>
+        </collection>
+    </resultMap>
+
+    <!-- 声明数据库字段 -->
+    <sql id="ItemOrder_field">
+        id,item_id,user_id,code,addTime,total,status
+    </sql>
+
+    <!-- 实体类属性-->
+    <sql id="ItemOrder_insert">
+        #{id},#{itemId},#{userId},#{code},#{addTime},#{total},#{status}
+    </sql>
+
+    <!-- 更新结果  -->
+    <sql id="ItemOrder_update">
+        <if test="itemId != null">
+            item_id = #{itemId},
+        </if>
+        <if test="userId != null">
+            user_id = #{userId},
+        </if>
+        <if test="code != null">
+            code = #{code},
+        </if>
+        <if test="addTime != null">
+            addTime = #{addTime},
+        </if>
+        <if test="total != null">
+            total = #{total},
+        </if>
+        <if test="status != null">
+            status = #{status}
+        </if>
+    </sql>
+
+    <!-- 查询时条件   -->
+    <sql id="ItemOrder_where">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="itemId != null">
+            and item_id = #{itemId}
+        </if>
+        <if test="userId != null">
+            and user_id = #{userId}
+        </if>
+        <if test="code != null">
+            and code = #{code}
+        </if>
+        <if test="addTime != null">
+            and addTime = #{addTime}
+        </if>
+        <if test="total != null">
+            and total = #{total}
+        </if>
+        <if test="status != null">
+            and status = #{status}
+        </if>
+    </sql>
+
+    <!--    新增        -->
+    <!--    参数：实体类-->
+    <!--    返回：主键 -->
+    <insert id="insert" parameterType="com.li.entity.ItemOrder" useGeneratedKeys="true" keyProperty="id">
+        insert into item_order(
+        <include refid="ItemOrder_field"/>
+        ) values(
+        <include refid="ItemOrder_insert"/>
+        )
+    </insert>
+
+    <!-- 根据实体主键删除一个实体-->
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        delete from item_order where id=#{id}
+    </delete>
+
+    <!-- 更新一个实体 -->
+    <update id="update" parameterType="com.li.entity.ItemOrder">
+        update item_order
+        <set>
+            <include refid="ItemOrder_update"/>
+        </set>
+		where id=#{id}
+    </update>
+
+    <!-- 根据参数查询-->
+    <select id="listByMap" resultMap="ResultMapItemOrder" parameterType="map">
+        select <include refid="ItemOrder_field"/>
+        from item_order 
+		<where>
+	        <include refid="ItemOrder_where"/>
+		</where>
+    </select>
+
+    <!-- 查询整个表 -->
+    <select id="listAll" resultMap="ResultMapItemOrder">
+        select <include refid="ItemOrder_field"/>
+        from item_order
+    </select>
+
+    <!-- 查询所有实体,根据实体属性值为判断条件查询所有实体-->
+    <select id="listAllByEntity" resultMap="ResultMapItemOrder" parameterType="com.li.entity.ItemOrder">
+        select <include refid="ItemOrder_field"/>
+        from item_order  
+		<where>
+	        <include refid="ItemOrder_where"/>
+		</where>
+    </select>
+
+    <!-- 根据主键获取一个实体-->
+    <select id="getById" resultMap="ResultMapItemOrder" parameterType="java.lang.Integer">
+        select <include refid="ItemOrder_field"/>
+        from item_order where id=#{id}
+    </select>
+
+    <!-- 通过map查询-->
+    <select id="getByMap" resultMap="ResultMapItemOrder" parameterType="map">
+        select <include refid="ItemOrder_field"/>
+        from item_order  
+		<where>
+	        <include refid="ItemOrder_where"/>
+		</where>
+    </select>
+    
+    <!--通过对象查询-不分页-->
+    <select id="getByEntity" resultMap="ResultMapItemOrder" parameterType="com.li.entity.ItemOrder">
+        select <include refid="ItemOrder_field"/>
+        from item_order  
+		<where>
+	        <include refid="ItemOrder_where"/>
+		</where>
+    </select>
+    
+    <!--通过对象查询分页-->
+    <select id="findByEntityPaging" resultMap="ResultMapItemOrder" parameterType="com.li.entity.ItemOrder">
+        select <include refid="ItemOrder_field"/>
+        from item_order  
+		<where>
+	        <if test="id != null">
+	            and id = #{id}
+	        </if>
+	        <if test="itemId != null">
+	            and item_id = #{itemId}
+	        </if>
+	        <if test="userId != null">
+	            and user_id = #{userId}
+	        </if>
+	        <if test="code != null">
+	            and code like "%"#{code}"%"
+	        </if>
+	        <if test="addTime != null">
+	            and addTime = #{addTime}
+	        </if>
+	        <if test="total != null">
+	            and total = #{total}
+	        </if>
+	        <if test="status != null">
+	            and status = #{status}
+	        </if>
+		</where>
+		order by id desc
+    </select>
+
+    <!-- 批量新增-->
+    <select id="insertBatch" parameterType="java.util.List">
+        insert into item_order(
+        <include refid="ItemOrder_field"/>
+        ) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.itemId},#{item.userId},#{item.code},#{item.addTime},#{item.total},#{item.status})
+        </foreach>
+    </select>
+
+    <!-- 批量修改-->
+    <update id="updateBatch" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" separator=";">
+            update item_order
+            <set>
+                <if test="item.itemId != null">
+                    item_id = #{item.itemId},
+                </if>
+                <if test="item.userId != null">
+                    user_id = #{item.userId},
+                </if>
+                <if test="item.code != null">
+                    code = #{item.code},
+                </if>
+                <if test="item.addTime != null">
+                    addTime = #{item.addTime},
+                </if>
+                <if test="item.total != null">
+                    total = #{item.total},
+                </if>
+                <if test="item.status != null">
+                    status = #{item.status}
+                </if>
+            </set>
+			<where>
+	            <if test="item.id != null">
+	               and id = #{item.id}
+	            </if>
+			</where>
+        </foreach>
+    </update>
+    
+    <!-- 各个entity对应的个性化查询 -->
+    <!-- 查询所有实体,根据实体属性值为判断条件查询所有实体-->
+    <select id="listAllByEntityDesc" resultMap="ResultMapItemOrder" parameterType="com.li.entity.ItemOrder">
+        SELECT
+			io.id AS id,
+			io.item_id AS item_id,
+			io.user_id AS user_id,
+			io.code AS code,
+			io.addTime AS addTime,
+			io.total AS total,
+			io.status AS status,
+			u.id AS uid,
+			u.userName AS uuserName,
+			u.passWord AS upassWord,
+			u.phone AS uphone,
+			u.realName AS urealName,
+			u.sex AS usex,
+			u.address AS uaddress,
+			u.email AS uemail,
+			od.id AS oid,
+			od.item_id AS oitem_id,
+			od.order_id AS oorder_id,
+			od.status AS ostatus,
+			od.num AS onum,
+			od.total AS ototal 
+		FROM
+			item_order AS io
+			LEFT JOIN user AS u ON io.user_id = u.id
+			LEFT JOIN order_detail AS od ON io.id = od.order_id 
+		<where>
+			<if test="id != null">
+            and io.id = #{id}
+        </if>
+        <if test="itemId != null">
+            and io.item_id = #{itemId}
+        </if>
+        <if test="userId != null">
+            and io.user_id = #{userId}
+        </if>
+        <if test="code != null">
+            and io.code = #{code}
+        </if>
+        <if test="addTime != null">
+            and io.addTime = #{addTime}
+        </if>
+        <if test="total != null">
+            and io.total = #{total}
+        </if>
+        <if test="status != null">
+            and io.status = #{status}
+        </if>
+		</where>
+		ORDER BY
+			io.id DESC
+    </select>
+</mapper>

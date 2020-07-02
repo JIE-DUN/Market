@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.li.dao.UserDao">
+    <!--实体类与数据库映射字段部分-->
+    <resultMap id="ResultMapUser" type="com.li.entity.User">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userName" column="userName" jdbcType="VARCHAR"/>
+        <result property="passWord" column="passWord" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
+        <result property="realName" column="realName" jdbcType="VARCHAR"/>
+        <result property="sex" column="sex" jdbcType="VARCHAR"/>
+        <result property="address" column="address" jdbcType="VARCHAR"/>
+        <result property="email" column="email" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 声明数据库字段 -->
+    <sql id="User_field">
+        id,userName,passWord,phone,realName,sex,address,email
+    </sql>
+
+    <!-- 实体类属性-->
+    <sql id="User_insert">
+        #{id},#{userName},#{passWord},#{phone},#{realName},#{sex},#{address},#{email}
+    </sql>
+
+    <!-- 更新结果  -->
+    <sql id="User_update">
+        <if test="userName != null">
+            userName = #{userName},
+        </if>
+        <if test="passWord != null">
+            passWord = #{passWord},
+        </if>
+        <if test="phone != null">
+            phone = #{phone},
+        </if>
+        <if test="realName != null">
+            realName = #{realName},
+        </if>
+        <if test="sex != null">
+            sex = #{sex},
+        </if>
+        <if test="address != null">
+            address = #{address},
+        </if>
+        <if test="email != null">
+            email = #{email}
+        </if>
+
+    </sql>
+
+    <!-- 查询时条件   -->
+    <sql id="User_where">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="userName != null">
+            and userName = #{userName}
+        </if>
+        <if test="passWord != null">
+            and passWord = #{passWord}
+        </if>
+        <if test="phone != null">
+            and phone = #{phone}
+        </if>
+        <if test="realName != null">
+            and realName = #{realName}
+        </if>
+        <if test="sex != null">
+            and sex = #{sex}
+        </if>
+        <if test="address != null">
+            and address = #{address}
+        </if>
+        <if test="email != null">
+            and email = #{email}
+        </if>
+    </sql>
+
+    <!--    新增        -->
+    <!--    参数：实体类-->
+    <!--    返回：主键 -->
+    <insert id="insert" parameterType="com.li.entity.User" useGeneratedKeys="true" keyProperty="id">
+        insert into user(
+        <include refid="User_field"/>
+        ) values(
+        <include refid="User_insert"/>
+        )
+    </insert>
+
+    <!-- 根据实体主键删除一个实体-->
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        delete from user where id=#{id}
+    </delete>
+
+    <!-- 更新一个实体 -->
+    <update id="update" parameterType="com.li.entity.User">
+        update user
+        <set>
+            <include refid="User_update"/>
+        </set>
+        where id=#{id}
+    </update>
+
+    <!-- 根据参数查询-->
+    <select id="listByMap" resultMap="ResultMapUser" parameterType="map">
+        select <include refid="User_field"/>
+        from user 
+        <where>
+	        <include refid="User_where"/>
+        </where>
+    </select>
+
+    <!-- 查询整个表 -->
+    <select id="listAll" resultMap="ResultMapUser">
+        select <include refid="User_field"/>
+        from user
+    </select>
+
+    <!-- 查询所有实体,根据实体属性值为判断条件查询所有实体-->
+    <select id="listAllByEntity" resultMap="ResultMapUser" parameterType="com.li.entity.User">
+        select <include refid="User_field"/>
+        from user 
+        <where>
+	        <include refid="User_where"/>
+        </where>
+    </select>
+
+    <!-- 根据主键获取一个实体-->
+    <select id="getById" resultMap="ResultMapUser" parameterType="java.lang.Integer">
+        select <include refid="User_field"/>
+        from user where id=#{id}
+    </select>
+
+    <!-- 通过map查询-->
+    <select id="getByMap" resultMap="ResultMapUser" parameterType="map">
+        select <include refid="User_field"/>
+        from user 
+        <where>
+	        <include refid="User_where"/>
+        </where>
+    </select>
+
+    <!--通过对象查询-->
+    <select id="getByEntity" resultMap="ResultMapUser" parameterType="com.li.entity.User">
+        select <include refid="User_field"/>
+        from user 
+        <where>
+	        <include refid="User_where"/>
+        </where>
+    </select>
+    
+    <!--通过对象查询分页-->
+    <select id="findByEntityPaging" resultMap="ResultMapUser" parameterType="com.li.entity.User">
+        select <include refid="User_field"/>
+        from user 
+        <where>
+	        <include refid="User_where"/>
+        </where>
+    </select>
+
+    <!-- 批量新增-->
+    <select id="insertBatch" parameterType="java.util.List">
+        insert into user(
+        <include refid="User_field"/>
+        ) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.userName},#{item.passWord},#{item.phone},#{item.realName},#{item.sex},#{item.address},#{item.email})
+        </foreach>
+    </select>
+
+    <!-- 批量修改-->
+    <update id="updateBatch" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" separator=";">
+            update user
+            <set>
+                <if test="item.userName != null">
+                    userName = #{item.userName},
+                </if>
+                <if test="item.passWord != null">
+                    passWord = #{item.passWord},
+                </if>
+                <if test="item.phone != null">
+                    phone = #{item.phone}
+                </if>
+                <if test="item.realName != null">
+                    realName = #{item.realName}
+                </if>
+                <if test="item.sex != null">
+                    sex = #{item.sex}
+                </if>
+                <if test="item.address != null">
+                    address = #{item.address}
+                </if>
+                <if test="item.email != null">
+                    email = #{item.email}
+                </if>
+            </set>
+	        <where>
+	            <if test="item.id != null">
+	               and id = #{item.id}
+	            </if>
+	        </where>
+        </foreach>
+    </update>
+    
+     <!-- 各个entity对应的个性化查询 -->
+     <!-- 根据User.userName模糊查询，暂时只支持userName -->
+     <select id="listUserByFuzzy" resultMap="ResultMapUser" parameterType="com.li.entity.User">
+        select <include refid="User_field"/>
+        from user 
+        <where>
+	        <if test="userName!=null and userName!='' ">
+				and userName like "%"#{userName}"%"
+			</if>
+        </where>
+		order by id
+    </select>
+    
+     <!-- 根据id查询用户role -->
+     <select id="findRoleByUserId" resultType="String" parameterType="com.li.entity.User">
+     	SELECT
+			r.code AS rcode
+		FROM
+			user AS u,
+			t_user_role AS ur,
+			t_role AS r 
+		<where>
+			u.id = ur.user_id 
+			AND ur.role_id = r.id 
+			<if test="id != null">
+				and u.id = #{id}
+			</if>
+			<if test="userName!=null and userName!=''">
+				and u.userName = #{userName}
+			</if>
+		</where>
+     </select>
+     
+     <!-- 根据id查询该用户Permission -->
+     <select id="findPermissionByUserId" resultType="String" parameterType="com.li.entity.User">
+     	SELECT
+			p.code AS pcode
+		FROM
+			user AS u,
+			t_user_role AS ur,
+			t_role AS r,
+			t_role_perm AS rp,
+			t_permission AS p 
+		<where>
+			u.id = ur.user_id 
+			AND ur.role_id = r.id 
+			AND r.id = rp.role_id 
+			AND rp.perm_id = p.id 
+			<if test="id != null">
+				and u.id = #{id}
+			</if>
+			<if test="userName!=null and userName!=''">
+				and u.userName = #{userName}
+			</if>
+		</where>
+     </select>
+     
+</mapper>

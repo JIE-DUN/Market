@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.li.dao.ItemCategoryOneDao">
+    <!--实体类与数据库映射字段部分-->
+    <resultMap id="ResultMapItemCategoryOne" type="com.li.entity.ItemCategoryOne">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 声明数据库字段 -->
+    <sql id="ItemCategoryOne_field">
+        id,name
+    </sql>
+
+    <!-- 实体类属性-->
+    <sql id="ItemCategoryOne_insert">
+        #{id},#{name}
+    </sql>
+
+    <!-- 更新结果  -->
+    <sql id="ItemCategoryOne_update">
+        <if test="name != null">
+            name = #{name},
+        </if>
+    </sql>
+
+    <!-- 查询时条件   -->
+    <sql id="ItemCategoryOne_where">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="name != null">
+            and name = #{name}
+        </if>
+    </sql>
+
+    <!--    新增        -->
+    <!--    参数：实体类-->
+    <!--    返回：主键 -->
+    <insert id="insert" parameterType="com.li.entity.ItemCategoryOne" useGeneratedKeys="true" keyProperty="id">
+        insert into item_category_one(
+        <include refid="ItemCategoryOne_field"/>
+        ) values(
+        <include refid="ItemCategoryOne_insert"/>
+        )
+    </insert>
+
+    <!-- 根据实体主键删除一个实体-->
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        delete from item_category_one where id=#{id}
+    </delete>
+
+    <!-- 更新一个实体 -->
+    <update id="update" parameterType="com.li.entity.ItemCategoryOne">
+        update item_category_one
+        <set>
+            <include refid="ItemCategoryOne_update"/>
+        </set>
+		where id=#{id}
+    </update>
+
+    <!-- 根据参数查询-->
+    <select id="listByMap" resultMap="ResultMapItemCategoryOne" parameterType="map">
+        select <include refid="ItemCategoryOne_field"/>
+        from item_category_one  
+		<where>
+	        <include refid="ItemCategoryOne_where"/>
+		</where>
+    </select>
+
+    <!-- 查询整个表 -->
+    <select id="listAll" resultMap="ResultMapItemCategoryOne">
+        select <include refid="ItemCategoryOne_field"/>
+        from item_category_one
+    </select>
+
+    <!-- 查询所有实体,根据实体属性值为判断条件查询所有实体-->
+    <select id="listAllByEntity" resultMap="ResultMapItemCategoryOne" parameterType="com.li.entity.ItemCategoryOne">
+        select <include refid="ItemCategoryOne_field"/>
+        from item_category_one  
+		<where>
+	        <include refid="ItemCategoryOne_where"/>
+		</where>
+    </select>
+
+    <!-- 根据主键获取一个实体-->
+    <select id="getById" resultMap="ResultMapItemCategoryOne" parameterType="java.lang.Integer">
+        select <include refid="ItemCategoryOne_field"/>
+        from item_category_one where id=#{id}
+    </select>
+
+    <!-- 通过map查询-->
+    <select id="getByMap" resultMap="ResultMapItemCategoryOne" parameterType="map">
+        select <include refid="ItemCategoryOne_field"/>
+        from item_category_one  
+		<where>
+	        <include refid="ItemCategoryOne_where"/>
+		</where>
+    </select>
+    
+    <!--通过对象查询-->
+    <select id="getByEntity" resultMap="ResultMapItemCategoryOne" parameterType="com.li.entity.ItemCategoryOne">
+        select <include refid="ItemCategoryOne_field"/>
+        from item_category_one  
+		<where>
+	        <include refid="ItemCategoryOne_where"/>
+		</where>
+    </select>
+    
+    <!--通过对象查询分页-->
+    <select id="findByEntityPaging" resultMap="ResultMapItemCategoryOne" parameterType="com.li.entity.ItemCategoryOne">
+        select <include refid="ItemCategoryOne_field"/>
+        from item_category_one  
+		<where>
+	        <include refid="ItemCategoryOne_where"/>
+		</where>
+    </select>
+
+    <!-- 批量新增-->
+    <select id="insertBatch" parameterType="java.util.List">
+        insert into item_category_one(
+        <include refid="ItemCategoryOne_field"/>
+        ) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.name})
+        </foreach>
+    </select>
+
+    <!-- 批量修改-->
+    <update id="updateBatch" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" separator=";">
+            update item_category_one
+            <set>
+                <if test="item.name != null">
+                    name = #{item.name}
+                </if>
+            </set>
+			<where>
+	            <if test="item.id != null">
+	               and id = #{item.id}
+	            </if>
+			</where>
+        </foreach>
+    </update>
+</mapper>

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.li.dao.ManageDao">
+    <!--实体类与数据库映射字段部分-->
+    <resultMap id="ResultMapManage" type="com.li.entity.Manage">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userName" column="userName" jdbcType="VARCHAR"/>
+        <result property="passWord" column="passWord" jdbcType="VARCHAR"/>
+        <result property="realName" column="realName" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+<!--     <resultMap id="ResultMapManageShiro" type="com.li.entity.Manage">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userName" column="userName" jdbcType="VARCHAR"/>
+        <association property="manageRole" javaType="com.li.entity.shiro.ManageRole">
+        	<result property="manageId" column="mr_manageId" jdbcType="INTEGER"/>
+	        <result property="roleId" column="mr_roleId" jdbcType="VARCHAR"/>
+	        <association property="role" javaType="com.li.entity.shiro.Role">
+	        	<id property="id" column="rid"/>
+	        	<result property="name" column="rname"/>
+	        	<result property="code" column="rcode"/>
+	        	<result property="intro" column="rintro"/>
+	        	<association property="rolePermission" javaType="com.li.entity.shiro.RolePermission">
+	        		<result property="roleId" column="rp_roleId" jdbcType="INTEGER"/>
+	        		<result property="permId" column="rp_permId" jdbcType="VARCHAR"/>
+	        		<association property="permission" javaType="com.li.entity.shiro.Permission">
+	        			<id property="id" column="pid"/>
+	        			<result property="name" column="pname"/>
+	        			<result property="code" column="pcode"/>
+	        			<result property="url" column="purl"/>
+	        		</association>
+	        	</association>
+	        </association>
+        </association>
+    </resultMap> -->
+    
+    <!-- 声明数据库字段 -->
+    <sql id="Manage_field">
+        id,userName,passWord,realName
+    </sql>
+
+    <!-- 实体类属性-->
+    <sql id="Manage_insert">
+        #{id},#{userName},#{passWord},#{realName}
+    </sql>
+
+    <!-- 更新结果  -->
+    <sql id="Manage_update">
+        <if test="userName != null">
+            userName = #{userName},
+        </if>
+        <if test="passWord != null">
+            passWord = #{passWord},
+        </if>
+        <if test="realName != null">
+            realName = #{realName}
+        </if>
+    </sql>
+
+    <!-- 查询时条件   -->
+    <sql id="Manage_where">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="userName != null">
+            and userName = #{userName}
+        </if>
+        <if test="passWord != null">
+            and passWord = #{passWord}
+        </if>
+        <if test="realName != null">
+            and realName = #{realName}
+        </if>
+    </sql>
+
+    <!--    新增        -->
+    <!--    参数：实体类-->
+    <!--    返回：主键 -->
+    <insert id="insert" parameterType="com.li.entity.Manage" useGeneratedKeys="true" keyProperty="id">
+        insert into manage(
+        <include refid="Manage_field"/>
+        ) values(
+        <include refid="Manage_insert"/>
+        )
+    </insert>
+
+    <!-- 根据实体主键删除一个实体-->
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        delete from manage where id=#{id}
+    </delete>
+
+    <!-- 更新一个实体 -->
+    <update id="update" parameterType="com.li.entity.Manage">
+        update manage
+        <set>
+            <include refid="Manage_update"/>
+        </set>
+		where id=#{id}
+    </update>
+
+    <!-- 查询整个表 -->
+    <select id="listAll" resultMap="ResultMapManage">
+        select <include refid="Manage_field"/>
+        from manage
+    </select>
+
+    <!-- 查询所有实体,根据实体属性值为判断条件查询所有实体-->
+    <select id="listAllByEntity" resultMap="ResultMapManage" parameterType="com.li.entity.Manage">
+        select <include refid="Manage_field"/>
+        from manage 
+		<where>
+	        <include refid="Manage_where"/>
+		</where>
+    </select>
+
+    <!-- 根据主键获取一个实体-->
+    <select id="getById" resultMap="ResultMapManage" parameterType="java.lang.Integer">
+        select <include refid="Manage_field"/>
+        from manage where id=#{id}
+    </select>
+
+    <!-- 通过map查询-->
+    <select id="getByMap" resultMap="ResultMapManage" parameterType="map">
+        select <include refid="Manage_field"/>
+        from manage  
+		<where>
+	        <include refid="Manage_where"/>
+		</where>
+    </select>
+
+    <!--通过对象查询-不分页-->
+    <select id="getByEntity" resultMap="ResultMapManage" parameterType="com.li.entity.Manage">
+        select <include refid="Manage_field"/>
+        from manage  
+		<where>
+	        <include refid="Manage_where"/>
+		</where>
+    </select>
+    
+    <!--通过对象查询分页-->
+    <select id="findByEntityPaging" resultMap="ResultMapManage" parameterType="com.li.entity.Manage">
+        select <include refid="Manage_field"/>
+        from manage  
+		<where>
+	        <include refid="Manage_where"/>
+		</where>
+    </select>
+
+    <!-- 批量新增-->
+    <select id="insertBatch" parameterType="java.util.List">
+        insert into manage(
+        <include refid="Manage_field"/>
+        ) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.userName},#{item.passWord},#{item.realName})
+        </foreach>
+    </select>
+
+    <!-- 批量修改-->
+    <update id="updateBatch" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" separator=";">
+            update manage
+            <set>
+                <if test="item.userName != null">
+                    userName = #{item.userName},
+                </if>
+                <if test="item.passWord != null">
+                    passWord = #{item.passWord},
+                </if>
+                <if test="item.realName != null">
+                    realName = #{item.realName}
+                </if>
+            </set>
+			<where>
+	            <if test="item.id != null">
+	               and id = #{item.id}
+	            </if>
+			</where>
+        </foreach>
+    </update>
+    
+     <!-- 各个entity对应的个性化查询 -->
+     <!-- 根据id查询该管理员role -->
+     <select id="findRoleByManageId" resultType="String" parameterType="com.li.entity.Manage">
+     	SELECT
+			r.code AS rcode
+		FROM
+			manage AS m,
+			t_manage_role AS mr,
+			t_role AS r 
+		<where>
+			m.id = mr.manage_id 
+			AND mr.role_id = r.id 
+			<if test="id != null">
+				and m.id = #{id}
+			</if>
+			<if test="userName!=null and userName!=''">
+				and m.userName = #{userName}
+			</if>
+		</where>
+     </select>
+     
+     <!-- 根据id查询该管理员Permission -->
+    <select id="findPermissionByManageId" resultType="String" parameterType="com.li.entity.Manage">
+     	SELECT
+			p.code AS code
+		FROM
+			manage AS m,
+			t_manage_role AS mr,
+			t_role AS r,
+			t_role_perm AS rp,
+			t_permission AS p
+		<where>
+			m.id = mr.manage_id 
+			AND mr.role_id = r.id 
+			AND r.id = rp.role_id 
+			AND rp.perm_id = p.id 
+			<if test="id != null">
+				and m.id = #{id}
+			</if>
+			<if test="userName!=null and userName!=''">
+				and m.userName = #{userName}
+			</if>
+		</where>
+     </select>
+     
+</mapper>

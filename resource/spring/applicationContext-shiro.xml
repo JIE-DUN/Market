@@ -1,0 +1,67 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.1.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.1.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.1.xsd">
+	
+    <!-- 把下面两个自定义Realm放到一起的认证器（一个集合） -->
+    <bean id="authenticator" class="org.apache.shiro.authc.pam.ModularRealmAuthenticator"></bean>
+    
+    <!-- 自定义Realm -->
+	<bean id="userRealm" class="com.li.realm.UserRealm"/>
+	<bean id="managerRealm" class="com.li.realm.ManagerRealm"/>
+    
+	<!-- 安全管理器，这次主要实现登录权限验证 -->
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="authenticator" ref="authenticator"/>
+		<property name="realms">
+            <list>
+                <ref bean="userRealm"/>
+                <ref bean="managerRealm"/>
+            </list>
+        </property>
+	</bean>
+	
+	<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+		<property name="securityManager" ref="securityManager" />
+	</bean>	
+	
+	<!-- shiro过滤器 -->
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<!-- shiro核心安全接口，这属性是必须，意思是shiroFilter使用securityManger这个安全管理器 -->
+		<property name="securityManager" ref="securityManager" />
+		<!-- 身份认证失败，跳转到的登录页面的配置 -->
+		<property name="loginUrl" value="/login/uLogin"/>
+		<property name="filters">
+			<util:map>
+				<entry key="authcManager" value-ref="managerFormAuthenticationFilter" />
+			</util:map>
+		</property>
+		<property name="filterChainDefinitions">
+			<value>
+				<!-- /login=anon -->
+				/manager/**=authcManager,roles["role_superman"]<!-- 这里只设置了一种管理员，所以就不设permission了 -->
+				/user/**=authc,roles["role_general_user"]
+			</value>
+		</property>
+	</bean>
+	<!-- 自定义filters -->
+	<bean id="managerFormAuthenticationFilter" class="org.apache.shiro.web.filter.authc.FormAuthenticationFilter">
+		<property name="loginUrl" value="/login/login" />
+	</bean>
+
+	<!-- 保证实现了shiro内部lifecycle函数的bean执行 -->
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"></bean>
+
+	<!-- 开启shiro注解 -->
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor"></bean>
+
+</beans>

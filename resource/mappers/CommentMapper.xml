@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.li.dao.CommentDao">
+    <!--实体类与数据库映射字段部分-->
+    <resultMap id="ResultMapComment" type="com.li.entity.Comment">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userId" column="userId" jdbcType="INTEGER"/>
+        <result property="itemId" column="itemId" jdbcType="INTEGER"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="addTime" column="addTime" jdbcType="TIMESTAMP"/>
+        <association property="user" column="user_id" select="com.li.dao.UserDao.getById"/>
+    </resultMap>
+
+    <!-- 声明数据库字段 -->
+    <sql id="Comment_field">
+        id,user_id,item_id,content,addTime
+    </sql>
+
+    <!-- 实体类属性-->
+    <sql id="Comment_insert">
+        #{id},#{userId},#{itemId},#{content},#{addTime}
+    </sql>
+
+    <!-- 更新结果  -->
+    <sql id="Comment_update">
+        <if test="userId != null">
+            user_id = #{userId},
+        </if>
+        <if test="itemId != null">
+            item_id = #{itemId},
+        </if>
+        <if test="content != null">
+            content = #{content},
+        </if>
+        <if test="addTime != null">
+            addTime = #{addTime}
+        </if>
+    </sql>
+
+    <!-- 查询时条件   -->
+    <sql id="Comment_where">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="userId != null">
+            and user_id = #{userId}
+        </if>
+        <if test="itemId != null">
+            and item_id = #{itemId}
+        </if>
+        <if test="content != null">
+            and content = #{content}
+        </if>
+        <if test="addTime != null">
+            and addTime = #{addTime}
+        </if>
+    </sql>
+
+    <!--    新增        -->
+    <!--    参数：实体类-->
+    <!--    返回：主键 -->
+    <insert id="insert" parameterType="com.li.entity.Comment" useGeneratedKeys="true" keyProperty="id">
+        insert into comment(
+        <include refid="Comment_field"/>
+        ) values(
+        <include refid="Comment_insert"/>
+        )
+    </insert>
+
+    <!-- 根据实体主键删除一个实体-->
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        delete from comment where id=#{id}
+    </delete>
+
+    <!-- 更新一个实体 -->
+    <update id="update" parameterType="com.li.entity.Comment">
+        update comment
+        <set>
+            <include refid="Comment_update"/>
+        </set>
+		where id=#{id}
+    </update>
+
+    <!-- 根据参数查询-->
+    <select id="listByMap" resultMap="ResultMapComment" parameterType="map">
+        select <include refid="Comment_field"/>
+        from comment  
+		<where>
+	        <include refid="Comment_where"/>
+		</where>
+    </select>
+
+    <!-- 查询整个表 -->
+    <select id="listAll" resultMap="ResultMapComment">
+        select <include refid="Comment_field"/>
+        from comment
+    </select>
+
+    <!-- 查询所有实体,根据实体属性值为判断条件查询所有实体-->
+    <select id="listAllByEntity" resultMap="ResultMapComment" parameterType="com.li.entity.Comment">
+        select <include refid="Comment_field"/>
+        from comment  
+		<where>
+	        <include refid="Comment_where"/>
+		</where>
+    </select>
+
+    <!-- 根据主键获取一个实体-->
+    <select id="getById" resultMap="ResultMapComment" parameterType="java.lang.Integer">
+        select <include refid="Comment_field"/>
+        from comment where id=#{id}
+    </select>
+
+    <!-- 通过map查询-->
+    <select id="getByMap" resultMap="ResultMapComment" parameterType="map">
+        select <include refid="Comment_field"/>
+        from comment  
+		<where>
+	        <include refid="Comment_where"/>
+		</where>
+    </select>
+
+    <!--通过对象查询-->
+    <select id="getByEntity" resultMap="ResultMapComment" parameterType="com.li.entity.Comment">
+        select <include refid="Comment_field"/>
+        from comment  
+		<where>
+	        <include refid="Comment_where"/>
+		</where>
+    </select>
+    
+     <!--通过对象查询分页-->
+    <select id="findByEntityPaging" resultMap="ResultMapComment" parameterType="com.li.entity.Comment">
+        select <include refid="Comment_field"/>
+        from comment  
+		<where>
+	        <include refid="Comment_where"/>
+		</where>
+    </select>
+
+    <!-- 批量新增-->
+    <select id="insertBatch" parameterType="java.util.List">
+        insert into comment(
+        <include refid="Comment_field"/>
+        ) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.userId},#{item.itemId},#{item.content},#{item.addTime})
+        </foreach>
+    </select>
+
+    <!-- 批量修改-->
+    <update id="updateBatch" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" separator=";">
+            update comment
+            <set>
+                <if test="item.userId != null">
+                    user_id = #{item.userId},
+                </if>
+                <if test="item.itemId != null">
+                    item_id = #{item.itemId},
+                </if>
+                <if test="item.content != null">
+                    content = #{item.content},
+                </if>
+                <if test="item.addTime != null">
+                    addTime = #{item.addTime}
+                </if>
+            </set>
+			<where>
+	            <if test="item.id != null">
+	               and id = #{item.id}
+	            </if>
+			</where>
+        </foreach>
+    </update>
+</mapper>
